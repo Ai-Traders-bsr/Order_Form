@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Traders Order Form</title>
+    <style>
+    /* Google Sheet Form Styles */
+    :root {
+        --primary-color: #5d5cde;
+        --primary-light: #8584ff;
+        --primary-dark: #3534b6;
+        --text-color: #333333;
+        --light-text: #757575;
+        --border-color: #e0e0e0;
+        --background-color: #ffffff;
+        --error-color: #e53935;
+        --success-color: #43a047;
+        --box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        --border-radius: 8px;
+        --transition: all 0.3s ease;
+    }
+    
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+    
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        color: var(--text-color);
+        background-color: #f9f9f9;
+        padding: 20px;
+    }
+    
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background-color: var(--background-color);
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        padding: 30px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 5px;
+        background: linear-gradient(to right, var(--primary-color), var(--primary-light));
+    }
+    
+    h1 {
+        font-size: 28px;
+        margin-bottom: 16px;
+        color: var(--primary-color);
+        text-align: center;
+    }
+    
+    .form-description {
+        margin-bottom: 24px;
+        text-align: center;
+        color: var(--light-text);
+    }
+    
+    .form-group {
+        margin-bottom: 24px;
+    }
+    
+    label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+    }
+    
+    .required {
+        color: var(--error-color);
+        margin-left: 4px;
+    }
+    
+    input[type="text"],
+    input[type="email"],
+    input[type="number"],
+    input[type="tel"],
+    input[type="date"],
+    input[type="time"],
+    input[type="url"],
+    input[type="color"],
+    input[type="password"],
+    textarea,
+    select {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        font-size: 16px;
+        transition: var(--transition);
+    }
+    
+    input:focus,
+    textarea:focus,
+    select:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(93, 92, 222, 0.2);
+    }
+    
+    input[type="range"] {
+        width: 100%;
+        margin: 10px 0;
+        -webkit-appearance: none;
+        height: 8px;
+        background: #e2e8f0;
+        border-radius: 4px;
+    }
+    
+    input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        height: 20px;
+        width: 20px;
+        border-radius: 50%;
+        background: var(--primary-color);
+        cursor: pointer;
+        box-shadow: 0 0 2px 0 rgba(0,0,0,0.25);
+    }
+    
+    .range-values {
+        display: flex;
+        justify-content: space-between;
+        font-size: 14px;
+        color: var(--light-text);
+    }
+    
+    textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+    
+    .radio-group,
+    .checkbox-group {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .radio-option,
+    .checkbox-option {
+        display: flex;
+        align-items: center;
+    }
+    
+    .radio-option input,
+    .checkbox-option input {
+        margin-right: 10px;
+    }
+    
+    .radio-option label,
+    .checkbox-option label {
+        margin-bottom: 0;
+        font-weight: normal;
+    }
+    
+    input[type="file"] {
+        padding: 10px;
+        background-color: #f8f9fa;
+        border: 1px dashed var(--border-color);
+        cursor: pointer;
+    }
+    
+    input[type="file"]:hover {
+        background-color: #f2f2f2;
+    }
+    
+    .file-help {
+        font-size: 12px;
+        color: var(--light-text);
+        margin-top: 4px;
+    }
+    
+    button {
+        
+                            background-color: #5d5cde;
+                            color: white;
+                            border: none;
+                            transition: background-color 0.3s;
+                        
+        padding: 12px 24px;
+        border-radius: var(--border-radius);
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 500;
+    }
+    
+    button:hover {
+        opacity: 0.9;
+    }
+    
+    button:active {
+        transform: translateY(1px);
+    }
+    
+    .submit-group {
+        margin-top: 32px;
+        text-align: center;
+    }
+    
+    /* Rating Stars */
+    .rating-group {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+    }
+    
+    .rating-group input {
+        display: none;
+    }
+    
+    .rating-group label {
+        cursor: pointer;
+        color: #ddd;
+        font-size: 2em;
+        padding: 0 0.1em;
+        transition: color 0.3s;
+    }
+    
+    .rating-group input:checked ~ label {
+        color: var(--primary-color);
+    }
+    
+    .rating-group label:hover,
+    .rating-group label:hover ~ label {
+        color: var(--primary-light);
+    }
+    
+    /* Signature Pad */
+    .signature-pad {
+        width: 100%;
+        height: 200px;
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        position: relative;
+        background: white;
+    }
+    
+    .signature-pad canvas {
+        width: 100%;
+        height: 100%;
+    }
+    
+    .signature-clear {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        padding: 5px 10px;
+        font-size: 12px;
+        background: #f2f2f2;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    
+    /* Loading, Success, and Error States */
+    .hidden {
+        display: none !important;
+    }
+    
+    .loading-indicator,
+    .success-message,
+    .error-message {
+        text-align: center;
+        padding: 30px;
+    }
+    
+    .loading-indicator p,
+    .success-message p,
+    .error-message p {
+        margin-bottom: 16px;
+    }
+    
+    .success-message p {
+        color: var(--success-color);
+        font-weight: 500;
+    }
+    
+    .error-message p {
+        color: var(--error-color);
+        font-weight: 500;
+    }
+    
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid rgba(93, 92, 222, 0.3);
+        border-top: 4px solid var(--primary-color);
+        border-radius: 50%;
+        margin: 0 auto 16px auto;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    /* Helper Text */
+    .help-text {
+        font-size: 14px;
+        color: var(--light-text);
+        margin-top: 4px;
+    }
+    
+    /* Section Divider */
+    .section-divider {
+        margin: 30px 0;
+        border-top: 1px solid var(--border-color);
+        position: relative;
+    }
+    
+    .section-title {
+        font-size: 20px;
+        margin-top: 20px;
+        margin-bottom: 15px;
+        color: var(--primary-color);
+    }
+    
+    /* Responsive Design */
+    @media screen and (max-width: 600px) {
+        .container {
+            padding: 20px;
+        }
+        
+        h1 {
+            font-size: 24px;
+        }
+        
+        input, textarea, select, button {
+            padding: 10px 14px;
+            font-size: 15px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .signature-pad {
+            height: 150px;
+        }
+    }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AI Traders Order Form</h1>
+        <p class="form-description">Kindly Fill Below form for your Order</p>
+        
+        <form id="googleSheetForm" method="POST" action="https://script.google.com/macros/s/AKfycbygTQqa5uxYXm193N4_pQgWJmTh8dHwWbYSlQ9mpbfZJuMMYJTwrQL8B2DO76F-puq6RA/exec">
+                <div class="form-group">
+                    <label for="name">Name <span class="required">*</span></label>
+                    <input type="text" id="name" name="name" placeholder="Kindly Give your Name" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone_number">Phone Number <span class="required">*</span></label>
+                    <input type="tel" id="phone_number" name="phone_number" placeholder="Kindly Give Your Mobile Number" required>
+                </div>
+                <div class="form-group">
+                    <label for="payment_mode">Payment Mode <span class="required">*</span></label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="payment_mode_0" name="payment_mode" value="Online" required>
+                            <label for="payment_mode_0">Online</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="payment_mode_1" name="payment_mode" value="Cash on Delivery" >
+                            <label for="payment_mode_1">Cash on Delivery</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="delivery_address">Delivery Address <span class="required">*</span></label>
+                    <div class="address-fields">
+                        <div class="form-group">
+                            <label for="delivery_address_street">Street Address <span class="required">*</span></label>
+                            <input type="text" id="delivery_address_street" name="delivery_address_street" placeholder="Street address" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group form-group-half">
+                                <label for="delivery_address_city">City <span class="required">*</span></label>
+                                <input type="text" id="delivery_address_city" name="delivery_address_city" placeholder="City" required>
+                            </div>
+                            <div class="form-group form-group-half">
+                                <label for="delivery_address_state">State/Province <span class="required">*</span></label>
+                                <input type="text" id="delivery_address_state" name="delivery_address_state" placeholder="State/Province" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group form-group-half">
+                                <label for="delivery_address_zip">ZIP/Postal Code <span class="required">*</span></label>
+                                <input type="text" id="delivery_address_zip" name="delivery_address_zip" placeholder="ZIP/Postal Code" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group submit-group">
+                    <button type="submit" id="submitButton">Submit</button>
+                </div>
+            </form>
+            
+            <div id="loadingIndicator" class="loading-indicator hidden">
+                <div class="spinner"></div>
+                <p>Submitting your response...</p>
+            </div>
+            
+            <div id="successMessage" class="success-message hidden">
+                <p>Thank you !!
+Our Team Will Contact You</p>
+                <button type="button" id="resetButton">Submit Another Response</button>
+            </div>
+            
+            <div id="errorMessage" class="error-message hidden">
+                <p>Sorry, there was an error submitting your form. Please try again later.</p>
+                <button type="button" id="retryButton">Try Again</button>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const form = document.getElementById('googleSheetForm');
+                const submitButton = document.getElementById('submitButton');
+                const loadingIndicator = document.getElementById('loadingIndicator');
+                const successMessage = document.getElementById('successMessage');
+                const errorMessage = document.getElementById('errorMessage');
+                const resetButton = document.getElementById('resetButton');
+                const retryButton = document.getElementById('retryButton');
+                const formWrapper = document.querySelector('.container');
+                
+                // Setup signature pads if they exist
+                setupSignaturePads();
+                
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Show loading indicator
+                    form.classList.add('hidden'); // <<< CHANGE THIS LINE
+                    loadingIndicator.classList.remove('hidden');
+                    
+                    // Collect form data
+                    const formData = new FormData(form);
+                    
+                    // Handle file uploads if any
+                    const fileInputs = document.querySelectorAll('input[type="file"]');
+                    let filePromises = [];
+                    
+                    fileInputs.forEach(fileInput => {
+                        if (fileInput.files.length > 0) {
+                            const file = fileInput.files[0];
+                            const fieldName = fileInput.name;
+                            
+                            // Create a promise for each file to be converted to base64
+                            const filePromise = new Promise((resolve, reject) => {
+                                const reader = new FileReader();
+                                reader.readAsDataURL(file);
+                                reader.onload = function() {
+                                    // Remove the formData file entry and replace with base64 data
+                                    formData.delete(fieldName);
+                                    formData.append(fieldName + '_base64', reader.result);
+                                    formData.append(fieldName + '_filename', file.name);
+                                    resolve();
+                                };
+                                reader.onerror = function(error) {
+                                    reject(error);
+                                };
+                            });
+                            
+                            filePromises.push(filePromise);
+                        }
+                    });
+                    
+                    // Process all file promises before submitting
+                    Promise.all(filePromises)
+                        .then(() => {
+                            // Convert FormData to URL params
+                            const formEntries = Array.from(formData.entries());
+                            
+                            // Special handling for checkbox arrays
+                            const checkboxGroups = {};
+                            formEntries.forEach(([key, value]) => {
+                                if (key.endsWith('[]')) {
+                                    const baseKey = key.slice(0, -2);
+                                    if (!checkboxGroups[baseKey]) {
+                                        checkboxGroups[baseKey] = [];
+                                    }
+                                    checkboxGroups[baseKey].push(value);
+                                }
+                            });
+                            
+                            const formParams = new URLSearchParams();
+                            formEntries.forEach(([key, value]) => {
+                                if (!key.endsWith('[]')) {
+                                    formParams.append(key, value);
+                                }
+                            });
+                            
+                            // Add checkbox arrays as comma-separated values
+                            Object.entries(checkboxGroups).forEach(([key, values]) => {
+                                formParams.append(key, values.join(', '));
+                            });
+                            
+                            // Send data to Google Script
+                            fetch(form.action, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/x-www-form-urlencoded',
+                                },
+                                body: formParams
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                loadingIndicator.classList.add('hidden');
+                                
+                                if (data.result === 'success') {
+                                    // Check for redirect URL
+                                    const successRedirect = formData.get('successRedirect');
+                                    if (successRedirect) {
+                                        window.location.href = successRedirect;
+                                    } else {
+                                        successMessage.classList.remove('hidden');
+                                    }
+                                } else {
+                                    errorMessage.classList.remove('hidden');
+                                    console.error('Form submission error:', data.error);
+                                }
+                            })
+                            .catch(error => {
+                                loadingIndicator.classList.add('hidden');
+                                errorMessage.classList.remove('hidden');
+                                console.error('Form submission error:', error);
+                            });
+                        })
+                        .catch(error => {
+                            loadingIndicator.classList.add('hidden');
+                            errorMessage.classList.remove('hidden');
+                            console.error('File processing error:', error);
+                        });
+                });
+                
+                // Reset form after successful submission
+                resetButton.addEventListener('click', function() {
+                    form.reset();
+                    successMessage.classList.add('hidden');
+		    form.classList.remove('hidden'); // <<< CHANGE THIS LINE
+                    
+                    // Clear any signature pads
+                    const canvases = document.querySelectorAll('canvas[id^="signature-"]');
+                    canvases.forEach(canvas => {
+                        const ctx = canvas.getContext('2d');
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        
+                        const inputId = canvas.id.replace('signature-', '');
+                        document.getElementById(inputId).value = '';
+                    });
+                });
+                
+                // Retry after error
+                retryButton.addEventListener('click', function() {
+                    errorMessage.classList.add('hidden');
+                    form.classList.remove('hidden'); // <<< CHANGE THIS LINE
+                });
+                
+                // Setup signature pads
+                function setupSignaturePads() {
+                    const signaturePads = document.querySelectorAll('.signature-pad');
+                    
+                    signaturePads.forEach(pad => {
+                        const canvas = pad.querySelector('canvas');
+                        const hiddenInput = document.getElementById(canvas.id.replace('signature-', ''));
+                        
+                        if (!canvas || !hiddenInput) return;
+                        
+                        const ctx = canvas.getContext('2d');
+                        let isDrawing = false;
+                        let lastX = 0;
+                        let lastY = 0;
+                        
+                        // Set canvas dimensions to match display size
+                        canvas.width = canvas.offsetWidth;
+                        canvas.height = canvas.offsetHeight;
+                        
+                        // Drawing functions
+                        function startDrawing(e) {
+                            isDrawing = true;
+                            const rect = canvas.getBoundingClientRect();
+                            lastX = e.clientX - rect.left;
+                            lastY = e.clientY - rect.top;
+                        }
+                        
+                        function draw(e) {
+                            if (!isDrawing) return;
+                            
+                            const rect = canvas.getBoundingClientRect();
+                            const currentX = e.clientX - rect.left;
+                            const currentY = e.clientY - rect.top;
+                            
+                            ctx.lineWidth = 2;
+                            ctx.lineCap = 'round';
+                            ctx.strokeStyle = '#000';
+                            
+                            ctx.beginPath();
+                            ctx.moveTo(lastX, lastY);
+                            ctx.lineTo(currentX, currentY);
+                            ctx.stroke();
+                            
+                            lastX = currentX;
+                            lastY = currentY;
+                            
+                            // Save signature data to hidden input
+                            hiddenInput.value = canvas.toDataURL();
+                        }
+                        
+                        function stopDrawing() {
+                            isDrawing = false;
+                        }
+                        
+                        // Touch support
+                        function handleTouchStart(e) {
+                            e.preventDefault();
+                            const touch = e.touches[0];
+                            const mouseEvent = new MouseEvent('mousedown', {
+                                clientX: touch.clientX,
+                                clientY: touch.clientY
+                            });
+                            canvas.dispatchEvent(mouseEvent);
+                        }
+                        
+                        function handleTouchMove(e) {
+                            e.preventDefault();
+                            const touch = e.touches[0];
+                            const mouseEvent = new MouseEvent('mousemove', {
+                                clientX: touch.clientX,
+                                clientY: touch.clientY
+                            });
+                            canvas.dispatchEvent(mouseEvent);
+                        }
+                        
+                        function handleTouchEnd(e) {
+                            e.preventDefault();
+                            const mouseEvent = new MouseEvent('mouseup', {});
+                            canvas.dispatchEvent(mouseEvent);
+                        }
+                        
+                        // Add event listeners
+                        canvas.addEventListener('mousedown', startDrawing);
+                        canvas.addEventListener('mousemove', draw);
+                        canvas.addEventListener('mouseup', stopDrawing);
+                        canvas.addEventListener('mouseout', stopDrawing);
+                        
+                        // Touch events
+                        canvas.addEventListener('touchstart', handleTouchStart);
+                        canvas.addEventListener('touchmove', handleTouchMove);
+                        canvas.addEventListener('touchend', handleTouchEnd);
+                    });
+                }
+                
+                // Function to clear signature
+                window.clearSignature = function(canvasId, inputId) {
+                    const canvas = document.getElementById(canvasId);
+                    const ctx = canvas.getContext('2d');
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    
+                    document.getElementById(inputId).value = '';
+                };
+            });
+        </script>
+    </div>
+</body>
+</html>
