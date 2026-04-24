@@ -153,25 +153,182 @@
         border-color: var(--primary-light);
     }
 
+    /* Image Carousel Styles inside Card */
     .product-image-container {
         width: 100%;
         height: 180px;
         background-color: #ffffff;
         border-radius: 4px;
         margin-bottom: 15px;
+        position: relative; /* For positioning arrows */
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 10px;
         border: 1px solid #f0f0f5;
+        overflow: hidden;
     }
 
-    .product-image-container img {
+    .carousel {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .carousel-img {
         width: 100%;
         height: 100%;
         object-fit: contain;
+        cursor: zoom-in;
+        padding: 10px;
+        transition: opacity 0.2s;
     }
 
+    .card-arrow {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid #eee;
+        border-radius: 50%;
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 12px;
+        color: #333;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+        z-index: 2;
+        transition: all 0.2s;
+    }
+
+    .card-arrow:hover {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+    }
+
+    .card-arrow-left { left: 5px; }
+    .card-arrow-right { right: 5px; }
+
+    .image-indicators {
+        position: absolute;
+        bottom: 5px;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: center;
+        gap: 4px;
+        z-index: 2;
+    }
+
+    .indicator-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background-color: rgba(0,0,0,0.2);
+        transition: all 0.2s;
+    }
+
+    .indicator-dot.active {
+        background-color: var(--primary-color);
+        transform: scale(1.2);
+    }
+
+    /* Lightbox (Full Screen Image) Styles */
+    .lightbox {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.9);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        opacity: 1;
+        transition: opacity 0.3s;
+    }
+
+    .lightbox.hidden {
+        display: none !important;
+        opacity: 0;
+    }
+
+    .lightbox-img {
+        max-width: 90vw;
+        max-height: 80vh;
+        object-fit: contain;
+        box-shadow: 0 5px 25px rgba(0,0,0,0.5);
+    }
+
+    .lightbox-close {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        color: white;
+        font-size: 35px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        z-index: 10000;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.1);
+        transition: background 0.3s;
+    }
+
+    .lightbox-close:hover {
+        background: rgba(255,255,255,0.3);
+    }
+
+    .lightbox-arrow {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        border: none;
+        width: 50px;
+        height: 60px;
+        font-size: 24px;
+        cursor: pointer;
+        transition: all 0.3s;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .lightbox-arrow:hover {
+        background: rgba(255, 255, 255, 0.3);
+    }
+
+    .lightbox-prev { left: 20px; }
+    .lightbox-next { right: 20px; }
+
+    .image-counter {
+        position: absolute;
+        bottom: 30px;
+        color: white;
+        font-size: 16px;
+        background: rgba(0,0,0,0.6);
+        padding: 6px 16px;
+        border-radius: 20px;
+        letter-spacing: 1px;
+    }
+
+    /* Product Info Styles */
     .product-brand {
         font-size: 12px;
         color: var(--light-text);
@@ -391,7 +548,6 @@
         animation: fadeIn 0.3s ease-in-out;
     }
 
-    /* New Tab Styles */
     .payment-tabs {
         display: flex;
         gap: 10px;
@@ -691,6 +847,13 @@
             padding: 2px 8px;
             border-radius: 4px;
         }
+        .lightbox-arrow {
+            width: 40px;
+            height: 50px;
+            font-size: 20px;
+        }
+        .lightbox-prev { left: 10px; }
+        .lightbox-next { right: 10px; }
     }
     </style>
 </head>
@@ -942,6 +1105,15 @@
         </div>
     </div>
 
+    <!-- Lightbox Modal for Full Screen Images -->
+    <div id="imageLightbox" class="lightbox hidden">
+        <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+        <button class="lightbox-arrow lightbox-prev" id="lightboxLeft" onclick="navigateLightbox(-1, event)">&#10094;</button>
+        <img id="lightboxImg" class="lightbox-img" src="" alt="Full Screen Product">
+        <button class="lightbox-arrow lightbox-next" id="lightboxRight" onclick="navigateLightbox(1, event)">&#10095;</button>
+        <div class="image-counter" id="lightboxCounter">1 / 1</div>
+    </div>
+
     <script>
         // ==========================================
         // CONFIGURATION FOR PAYMENT & SPREADSHEET
@@ -962,22 +1134,28 @@
             colImageIndex: 8  // Column I (Image URL)
         };
 
+        // Fallback items updated to have array of images to showcase the feature
         const FALLBACK_ITEMS = [
-            { id: 'p1', brand: 'Owl', name: 'Coccyx Cushion', price: 585, image: 'https://placehold.co/400x300/e2e8f0/475569?text=Coccyx+Cushion' },
-            { id: 'p2', brand: 'Owl', name: 'Slim Back Rest', price: 682, image: 'https://placehold.co/400x300/e2e8f0/475569?text=Back+Rest' },
-            { id: 'p3', brand: 'Black Bird', name: 'Shuttlecock', price: 480, image: 'https://placehold.co/400x300/e2e8f0/475569?text=Shuttlecock' },
-            { id: 'p4', brand: 'Owl', name: 'Neck Rest', price: 599, image: 'https://placehold.co/400x300/e2e8f0/475569?text=Neck+Rest' }
+            { id: 'p1', brand: 'Owl', name: 'Coccyx Cushion', price: 585, images: ['https://placehold.co/400x300/e2e8f0/475569?text=Coccyx+1', 'https://placehold.co/400x300/e2e8f0/475569?text=Coccyx+2'] },
+            { id: 'p2', brand: 'Owl', name: 'Slim Back Rest', price: 682, images: ['https://placehold.co/400x300/e2e8f0/475569?text=Back+Rest'] },
+            { id: 'p3', brand: 'Black Bird', name: 'Shuttlecock', price: 480, images: ['https://placehold.co/400x300/e2e8f0/475569?text=Shuttlecock+1', 'https://placehold.co/400x300/e2e8f0/475569?text=Shuttlecock+2', 'https://placehold.co/400x300/e2e8f0/475569?text=Shuttlecock+3'] },
+            { id: 'p4', brand: 'Owl', name: 'Neck Rest', price: 599, images: ['https://placehold.co/400x300/e2e8f0/475569?text=Neck+Rest'] }
         ];
 
         // System Variables
         let loadedProducts = [];
         let productQuantities = {}; 
+        let productStates = {}; // Stores current image index for sliders
         
         // Cart State Variables
         let cartBaseTotal = 0;
         let cartTotalQty = 0;
         let handlingFeePerItem = 30; // ₹30 per item for COD
         let onlineDiscountRate = 0.05; // 5% discount
+
+        // Lightbox State
+        let currentLightboxProductIndex = 0;
+        let currentLightboxImageIndex = 0;
 
         document.addEventListener('DOMContentLoaded', function() {
             // DOM Elements
@@ -1003,20 +1181,26 @@
             const dynamicQRCode = document.getElementById('dynamicQRCode');
             const payTabBtns = document.querySelectorAll('.pay-tab-btn');
 
+            // Lightbox Elements
+            const lightbox = document.getElementById('imageLightbox');
+
+            // Lightbox click-outside to close
+            lightbox.addEventListener('click', function(e) {
+                if(e.target === lightbox) {
+                    closeLightbox();
+                }
+            });
+
             // Tab Switching Logic for Payment Screen
             payTabBtns.forEach(btn => {
                 btn.addEventListener('click', function() {
-                    // Remove active class from all buttons
                     payTabBtns.forEach(b => b.classList.remove('active'));
-                    // Add active class to clicked button
                     this.classList.add('active');
                     
-                    // Hide all tab contents
                     document.querySelectorAll('.pay-tab-content').forEach(content => {
                         content.classList.add('hidden');
                     });
                     
-                    // Show the targeted content
                     const targetId = this.getAttribute('data-target');
                     document.getElementById(targetId).classList.remove('hidden');
                 });
@@ -1025,10 +1209,9 @@
             // Function to generate Unique Order ID
             function generateOrderID() {
                 const date = new Date();
-                const yy = String(date.getFullYear()).slice(-2); // e.g., 26
+                const yy = String(date.getFullYear()).slice(-2);
                 const mm = String(date.getMonth() + 1).padStart(2, '0');
                 const dd = String(date.getDate()).padStart(2, '0');
-                // 4 random digits to complete exactly 10 digits after 'OD' (OD + 10 numbers)
                 const random = Math.floor(1000 + Math.random() * 9000); 
                 return `OD${yy}${mm}${dd}${random}`;
             }
@@ -1055,21 +1238,32 @@
                         const name = row[SPREADSHEET_CONFIG.colNameIndex] ? row[SPREADSHEET_CONFIG.colNameIndex].v : 'Unknown';
                         const price = row[SPREADSHEET_CONFIG.colPriceIndex] ? parseFloat(row[SPREADSHEET_CONFIG.colPriceIndex].v) : 0;
                         
-                        let image = 'https://placehold.co/400x300/e2e8f0/475569?text=No+Image';
+                        let images = ['https://placehold.co/400x300/e2e8f0/475569?text=No+Image'];
+                        
+                        // Parse Images: Split by comma if multiple
                         if (row.length > SPREADSHEET_CONFIG.colImageIndex && row[SPREADSHEET_CONFIG.colImageIndex]) {
                             let rawUrl = row[SPREADSHEET_CONFIG.colImageIndex].v;
-                            if (rawUrl && typeof rawUrl === 'string' && rawUrl.includes('google.com/imgres')) {
-                                try {
-                                    const urlParams = new URLSearchParams(rawUrl.split('?')[1]);
-                                    const imgUrl = urlParams.get('imgurl');
-                                    if (imgUrl) rawUrl = decodeURIComponent(imgUrl);
-                                } catch(e) {}
+                            if (rawUrl && typeof rawUrl === 'string') {
+                                let parsedUrls = rawUrl.split(',').map(url => {
+                                    let cleanUrl = url.trim();
+                                    if (cleanUrl.includes('google.com/imgres')) {
+                                        try {
+                                            const urlParams = new URLSearchParams(cleanUrl.split('?')[1]);
+                                            const imgUrl = urlParams.get('imgurl');
+                                            if (imgUrl) cleanUrl = decodeURIComponent(imgUrl);
+                                        } catch(e) {}
+                                    }
+                                    return cleanUrl;
+                                }).filter(url => url.length > 0);
+                                
+                                if (parsedUrls.length > 0) {
+                                    images = parsedUrls;
+                                }
                             }
-                            image = rawUrl;
                         }
 
                         if (name && !isNaN(price)) {
-                            items.push({ id: `item_${i}`, brand, name, price, image });
+                            items.push({ id: `item_${i}`, brand, name, price, images });
                         }
                     }
                     
@@ -1080,7 +1274,7 @@
                         throw new Error("No items");
                     }
                 } catch (error) {
-                    console.warn("Using fallback data.");
+                    console.warn("Using fallback data due to fetch error.");
                     loadedProducts = FALLBACK_ITEMS;
                     renderProducts(loadedProducts);
                 }
@@ -1092,15 +1286,35 @@
                 productGrid.classList.remove('hidden');
                 productGrid.innerHTML = '';
                 productQuantities = {}; 
+                productStates = {};
 
                 products.forEach((product, index) => {
                     productQuantities[index] = 0; 
+                    productStates[index] = { currentImgIndex: 0 }; // Init slider state
+                    
+                    // Generate carousel HTML based on number of images
+                    let hasMultipleImages = product.images.length > 1;
+                    let indicatorsHtml = '';
+                    
+                    if(hasMultipleImages) {
+                        indicatorsHtml = `
+                            <button type="button" class="card-arrow card-arrow-left" onclick="navigateCard(${index}, -1, event)">&#10094;</button>
+                            <button type="button" class="card-arrow card-arrow-right" onclick="navigateCard(${index}, 1, event)">&#10095;</button>
+                            <div class="image-indicators">
+                                ${product.images.map((_, i) => `<div class="indicator-dot ${i === 0 ? 'active' : ''}"></div>`).join('')}
+                            </div>
+                        `;
+                    }
+
                     const card = document.createElement('div');
                     card.className = 'product-card';
                     card.innerHTML = `
                         <div>
                             <div class="product-image-container">
-                                <img src="${product.image}" alt="${product.name}" onerror="this.src='https://placehold.co/400x300/e2e8f0/475569?text=Image+Error'">
+                                <div class="carousel" data-product-id="${index}">
+                                    <img src="${product.images[0]}" alt="${product.name}" class="carousel-img" onclick="openLightbox(${index}, 0)" onerror="this.src='https://placehold.co/400x300/e2e8f0/475569?text=Image+Error'">
+                                    ${indicatorsHtml}
+                                </div>
                             </div>
                             <div class="product-brand">${product.brand}</div>
                             <div class="product-name">${product.name}</div>
@@ -1183,10 +1397,8 @@
                         cartBaseTotal += itemTotal;
                         cartTotalQty += qty;
                         
-                        // Save in memory for backend
                         orderSummary.push(`${qty}x ${product.brand} ${product.name} (₹${itemTotal.toFixed(2)})`);
                         
-                        // Update UI breakdown list
                         bagList.innerHTML += `
                             <li class="breakdown-item">
                                 <span class="breakdown-item-name">${qty}x ${product.brand} ${product.name}</span>
@@ -1196,7 +1408,6 @@
                     }
                 });
 
-                // Control visibility of Step 1 Breakdown and Proceed Button
                 const step1Breakdown = document.getElementById('step1Breakdown');
                 if (cartTotalQty > 0) {
                     step1Breakdown.classList.remove('hidden');
@@ -1211,45 +1422,33 @@
             }
 
             // --- Navigation Events ---
-            
-            // Step 1 -> Step 2
             btnProceedToCheckout.addEventListener('click', function() {
                 step1.classList.add('hidden');
                 step2.classList.remove('hidden');
-                
-                // Show promo banner when entering Step 2
                 promoBanner.classList.remove('hidden'); 
-                
-                mainHeading.textContent = "AI Traders"; // Shorten heading
+                mainHeading.textContent = "AI Traders"; 
                 pageSubtitle.classList.remove('hidden');
                 pageSubtitle.textContent = "Please provide your delivery details.";
                 window.scrollTo(0,0);
-                updateCheckoutCalculations(); // Setup pricing on step 2 load
+                updateCheckoutCalculations(); 
             });
 
-            // Step 2 -> Step 1
             btnBackToStep1.addEventListener('click', function() {
                 step2.classList.add('hidden');
                 step1.classList.remove('hidden');
-                
-                mainHeading.textContent = "Welcome to AI Traders"; // Revert heading
+                mainHeading.textContent = "Welcome to AI Traders"; 
                 pageSubtitle.classList.remove('hidden');
                 pageSubtitle.textContent = "Select your items to build your bag.";
                 window.scrollTo(0,0);
             });
 
-            // Step 3 -> Step 2
             btnBackToStep2.addEventListener('click', function() {
                 step3.classList.add('hidden');
                 step2.classList.remove('hidden');
-                
-                mainHeading.textContent = "AI Traders"; // Keep short heading
-                pageSubtitle.classList.remove('hidden'); // Ensure subtitle is visible again
+                mainHeading.textContent = "AI Traders";
+                pageSubtitle.classList.remove('hidden'); 
                 pageSubtitle.textContent = "Please provide your delivery details.";
-                
-                // Clear validation that blocks form submission
                 paymentReferenceInput.required = false;
-                
                 window.scrollTo(0,0);
             });
 
@@ -1257,7 +1456,6 @@
                 promoBanner.classList.add('hidden');
             });
 
-            // Payment Mode Change Listener
             radioOnline.addEventListener('change', updateCheckoutCalculations);
             radioCod.addEventListener('change', updateCheckoutCalculations);
 
@@ -1270,24 +1468,19 @@
                 let finalHandlingApplied = 0;
                 let finalDiscountApplied = 0;
 
-                // Update static UI details
                 document.getElementById('checkoutTotalQty').textContent = cartTotalQty;
                 document.getElementById('checkoutBaseTotal').textContent = `₹${cartBaseTotal.toFixed(2)}`;
                 document.getElementById('codExtraLabel').textContent = `(+ ₹${totalHandlingRaw})`;
                 
-                // Savings = discount + handling
                 const totalSavings = onlineDiscountRaw + totalHandlingRaw;
                 document.getElementById('promoText').innerHTML = `Pay Online and save <b>₹${totalSavings.toFixed(2)}</b> (5% OFF + FREE Handling)!`;
 
                 if (isOnline) {
-                    // Online: Apply Discount, Free Handling
-                    promoBanner.classList.remove('hidden'); // Show promo card again if online is selected
-
+                    promoBanner.classList.remove('hidden'); 
                     finalHandlingApplied = 0;
                     finalDiscountApplied = onlineDiscountRaw;
                     finalPayable = cartBaseTotal - finalDiscountApplied;
 
-                    // Update UI 
                     document.getElementById('handlingNormal').classList.add('hidden');
                     document.getElementById('handlingPromoContainer').classList.remove('hidden');
                     document.getElementById('handlingStrikethrough').textContent = `₹${totalHandlingRaw.toFixed(2)}`;
@@ -1295,69 +1488,49 @@
                     document.getElementById('rowDiscount').classList.remove('hidden');
                     document.getElementById('checkoutDiscount').textContent = `- ₹${finalDiscountApplied.toFixed(2)}`;
 
-                    // Setup button text
                     btnProceedOrSubmit.textContent = `Proceed to Pay ₹${finalPayable.toFixed(2)}`;
 
-                    // --- GENERATE DYNAMIC QR CODE WITH AMOUNT ---
                     const upiString = `upi://pay?pa=${PAYMENT_CONFIG.upiId}&pn=${PAYMENT_CONFIG.payeeName}&am=${finalPayable.toFixed(2)}&cu=INR`;
                     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiString)}`;
                     dynamicQRCode.src = qrUrl;
-
                 } else {
-                    // COD: Add Handling, No Discount
-                    promoBanner.classList.add('hidden'); // Hide promo banner on COD
-
+                    promoBanner.classList.add('hidden'); 
                     finalHandlingApplied = totalHandlingRaw;
                     finalDiscountApplied = 0;
                     finalPayable = cartBaseTotal + finalHandlingApplied;
 
-                    // Update UI
                     document.getElementById('handlingPromoContainer').classList.add('hidden');
                     document.getElementById('handlingNormal').classList.remove('hidden');
                     document.getElementById('handlingNormal').textContent = `₹${finalHandlingApplied.toFixed(2)}`;
                     
                     document.getElementById('rowDiscount').classList.add('hidden');
-
-                    // Setup button text and make reference optional
                     btnProceedOrSubmit.textContent = `Confirm & Place Order`;
                     paymentReferenceInput.required = false;
-                    paymentReferenceInput.value = ''; // Clear value
+                    paymentReferenceInput.value = '';
                 }
 
-                // Set Final Totals (for Step 2 and Step 3 views)
                 document.getElementById('checkoutFinalTotal').textContent = `₹${finalPayable.toFixed(2)}`;
                 step3AmountDisplay.textContent = `₹${finalPayable.toFixed(2)}`;
 
-                // Update Hidden Inputs for Google Script
                 document.getElementById('hiddenBaseAmount').value = cartBaseTotal.toFixed(2);
                 document.getElementById('hiddenHandlingCharge').value = finalHandlingApplied.toFixed(2);
                 document.getElementById('hiddenDiscount').value = finalDiscountApplied.toFixed(2);
                 document.getElementById('hiddenTotalAmount').value = finalPayable.toFixed(2);
             }
             
-            // Final Form Submission Logic (Handles both Step 2 and Step 3 Submits)
             form.addEventListener('submit', function(e) {
-                e.preventDefault(); // Stop default form submit behavior
+                e.preventDefault(); 
                 
-                // If on Step 2 and "Pay Online" is selected, show Step 3
                 if (radioOnline.checked && step3.classList.contains('hidden')) {
                     step2.classList.add('hidden');
                     step3.classList.remove('hidden');
-                    
-                    mainHeading.textContent = "AI Traders"; // Ensure short heading
-                    pageSubtitle.classList.add('hidden'); // Remove the subtitle instruction text completely here
-                    
-                    // Make reference input required only after reaching Step 3
+                    mainHeading.textContent = "AI Traders"; 
+                    pageSubtitle.classList.add('hidden'); 
                     paymentReferenceInput.required = true;
-                    
                     window.scrollTo(0,0);
-                    return; // Stop here, form will not be submitted yet
+                    return; 
                 }
                 
-                // We reach here either when COD order is submitted (from Step 2),
-                // Or when Online order reference number is submitted (from Step 3).
-                
-                // --- GENERATE AND SET UNIQUE ORDER ID HERE ---
                 const newOrderId = generateOrderID();
                 document.getElementById('hiddenOrderID').value = newOrderId;
                 document.getElementById('orderIdDisplay').textContent = "Order ID: " + newOrderId;
@@ -1392,7 +1565,6 @@
                 });
             });
             
-            // Reset flow (Start new order)
             document.getElementById('resetButton').addEventListener('click', function() {
                 form.reset();
                 Object.keys(productQuantities).forEach(index => {
@@ -1404,7 +1576,6 @@
                 document.getElementById('successMessage').classList.add('hidden');
                 form.classList.remove('hidden');
                 
-                // Reset to Step 1
                 step3.classList.add('hidden');
                 step2.classList.add('hidden');
                 step1.classList.remove('hidden');
@@ -1419,6 +1590,83 @@
                 form.classList.remove('hidden'); 
             });
         });
+
+        // ==========================================
+        // GLOBAL CAROUSEL & LIGHTBOX FUNCTIONS
+        // ==========================================
+        
+        // Product Card Navigation
+        window.navigateCard = function(productIndex, direction, event) {
+            if(event) event.stopPropagation(); // Prevents opening the lightbox when clicking arrows
+            
+            let product = loadedProducts[productIndex];
+            let state = productStates[productIndex];
+            
+            // Calculate new image index (looping around)
+            state.currentImgIndex = (state.currentImgIndex + direction + product.images.length) % product.images.length;
+            
+            let container = document.querySelector(`.carousel[data-product-id="${productIndex}"]`);
+            let imgEl = container.querySelector('.carousel-img');
+            
+            // Update image source and the onclick handler index
+            imgEl.src = product.images[state.currentImgIndex];
+            imgEl.setAttribute('onclick', `openLightbox(${productIndex}, ${state.currentImgIndex})`);
+
+            // Update indicator dots
+            let dots = container.querySelectorAll('.indicator-dot');
+            dots.forEach((dot, i) => {
+                if(i === state.currentImgIndex) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
+        };
+
+        // Open Lightbox
+        window.openLightbox = function(productIndex, imgIndex) {
+            currentLightboxProductIndex = productIndex;
+            currentLightboxImageIndex = imgIndex;
+            
+            updateLightboxUI();
+            document.getElementById('imageLightbox').classList.remove('hidden');
+        };
+
+        // Close Lightbox
+        window.closeLightbox = function() {
+            document.getElementById('imageLightbox').classList.add('hidden');
+        };
+
+        // Lightbox Navigation
+        window.navigateLightbox = function(direction, event) {
+            if(event) event.stopPropagation(); // Prevent closing lightbox when clicking arrows
+            
+            let product = loadedProducts[currentLightboxProductIndex];
+            let totalImages = product.images.length;
+            
+            currentLightboxImageIndex = (currentLightboxImageIndex + direction + totalImages) % totalImages;
+            updateLightboxUI();
+        };
+
+        // Update Lightbox Images and Text
+        function updateLightboxUI() {
+            let product = loadedProducts[currentLightboxProductIndex];
+            
+            document.getElementById('lightboxImg').src = product.images[currentLightboxImageIndex];
+            document.getElementById('lightboxCounter').textContent = `${currentLightboxImageIndex + 1} / ${product.images.length}`;
+            
+            // Show/hide arrows if there is only 1 image
+            let leftArrow = document.getElementById('lightboxLeft');
+            let rightArrow = document.getElementById('lightboxRight');
+            
+            if(product.images.length > 1) {
+                leftArrow.style.display = 'flex';
+                rightArrow.style.display = 'flex';
+            } else {
+                leftArrow.style.display = 'none';
+                rightArrow.style.display = 'none';
+            }
+        }
     </script>
 </body>
 </html>
